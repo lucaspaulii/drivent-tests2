@@ -46,9 +46,6 @@ async function postBooking(userId: number, roomId: number) {
 async function putBooking(userId: number, roomId: number, bookingId: number) {
   await checkRoom(roomId);
   const booking = await getBookingById(bookingId);
-  if (!booking) {
-    throw notFoundError();
-  }
   if (booking.userId !== userId) {
     throw unauthorizedError();
   }
