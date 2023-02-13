@@ -23,20 +23,33 @@ async function getBookingByUser(userId: number) {
 
   return result;
 }
+async function getBookingById(bookingId: number) {
+  const result = await bookingRepository.findBookingById(bookingId);
+
+  if (!result) {
+    throw notFoundError();
+  }
+
+  return result;
+}
 
 async function postBooking(userId: number, roomId: number) {
   await checkRoom(roomId);
+  const usersBooking = await bookingRepository.findBooking(userId);
+  if (usersBooking) {
+    throw businessRuleError();
+  }
   const createBooking = await bookingRepository.createBooking(userId, roomId);
   return createBooking.id;
 }
 
 async function putBooking(userId: number, roomId: number, bookingId: number) {
   await checkRoom(roomId);
-  const userBooking = await getBookingByUser(userId);
-  if (!userBooking) {
-    throw businessRuleError();
+  const booking = await getBookingById(bookingId);
+  if (!booking) {
+    throw notFoundError();
   }
-  if (userBooking.id !== bookingId) {
+  if (booking.userId !== userId) {
     throw unauthorizedError();
   }
   const updateBooking = await bookingRepository.updateBookingRoom(bookingId, roomId);
